@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>3D Face Graph</title>
+<style>
+  body { margin:0; overflow:hidden; background:#111; }
+  #graph { width:100vw; height:100vh; }
+  #uploader { padding:10px; background:#000; color:white; position:absolute; z-index:10; }
+  #controls { padding:10px; background:#000; color:white; position:absolute; top:60px; z-index:10; }
+</style>
+</head>
+<body>
+
+<div id="uploader">
+  <input type="file" id="uploadInput" multiple accept="image/*">
+  <button onclick="uploadImages()">Upload Images</button>
+  <span id="status"></span>
+</div>
+
+<div id="controls">
+
+  <label>String Visibility:
+    <input type="checkbox" id="toggleLinks" checked onchange="updateLinkVisibility()">
+  </label>
+  <br>
+
+  <label>String Thickness:
+    <input type="range" id="linkWidth" min="0" max="10" value="1" step="0.5" oninput="updateLinkWidth()">
+  </label>
+  <br>
+
+  <label>Node Distance:
+    <input type="range" id="nodeDistance" min="10" max="500" value="120" step="10" oninput="updateNodeDistance()">
+  </label>
+  <br>
+
+  <!-- ADDED NEW CONTROLS -->
+  <label>String Color:
+    <input type="color" id="linkColorPicker" value="#ffffff" onchange="updateLinkColor()">
+  </label>
+  <br>
+
+  <label>Auto Rotate:
+    <input type="checkbox" id="autoRotate" onchange="toggleAutoRotate()">
+  </label>
+  <br>
+
+  <label>Search Person:
+    <input type="text" id="searchBox" placeholder="filename..." onkeyup="searchPerson()">
+  </label>
+
+</div>
+
+<div id="graph"></div>
+
+<!-- Load THREE.js FIRST -->
+<script src="https://unpkg.com/three@0.150.1/build/three.min.js"></script>
+
+<!-- Load force graph SECOND -->
+<script src="https://unpkg.com/3d-force-graph@1.71.0"></script>
+
+<!-- Your graph logic LAST -->
+<script src="/static/js/graph.js"></script>
+
+</body>
+</html>
