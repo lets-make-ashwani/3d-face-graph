@@ -43,6 +43,7 @@ async function loadGraph() {
       })
       .nodeColor(node => clusters[node.id].color)
       .onNodeClick(node => highlightSimilar(node))
+      .linkVisibility(() => true)
       .linkWidth(() => currentLinkWidth)
       .linkColor(() => currentLinkColor);
   }
@@ -127,7 +128,7 @@ async function uploadImages() {
   const data = await res.json();
 
   if (data.success) {
-    status.innerText = "Uploaded: " + data.saved.join(", ");
+    status.innerText = "Uploaded: " ;
     setTimeout(loadGraph, 500);
   } else {
     status.innerText = "Error uploading!";
@@ -138,7 +139,12 @@ async function uploadImages() {
 // ---------------- LINK VISIBILITY ----------------
 function updateLinkVisibility() {
   const visible = document.getElementById("toggleLinks").checked;
-  Graph.linkWidth(visible ? currentLinkWidth : 0);
+
+  Graph.linkVisibility(() => visible ? true : false);
+
+  // When strings are off, width doesn't matter
+  if (!visible) Graph.linkWidth(() => 0);
+  else Graph.linkWidth(() => currentLinkWidth);
 }
 
 
