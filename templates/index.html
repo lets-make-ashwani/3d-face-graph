@@ -4,206 +4,176 @@
 <meta charset="UTF-8"/>
 <title>3D Face Graph</title>
 <style>
-  body { 
-    margin:0; 
-    overflow:hidden; 
-    background:#0b0f19; 
-    font-family: "Segoe UI", sans-serif;
+body { 
+  margin:0; 
+  overflow:hidden; 
+  background:#0b0f19; 
+  font-family: "Segoe UI", sans-serif;
+}
+
+#graph {
+  width:100vw;
+  height:100vh;
+}
+
+/* Top title */
+#appTitle {
+  position:absolute;
+  top:8px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:24px;
+  padding:6px 16px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2);
+  color:#e0f7ff;
+  border-radius:12px;
+  backdrop-filter:blur(8px);
+  z-index:20;
+}
+
+/* Upload bar */
+#uploader {
+  padding:10px 14px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);
+  border-radius:12px;
+  color:white;
+  position:absolute;
+  top:55px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  z-index:15;
+}
+
+/* Modern responsive buttons */
+.upload-btn,
+.btn {
+  padding:6px 12px;
+  font-size:14px;
+  border-radius:10px;
+  cursor:pointer;
+  transition:0.2s;
+  border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.15);
+  color:white;
+}
+
+.upload-btn:hover, .btn:hover {
+  background:rgba(255,255,255,0.25);
+}
+
+#uploadInput { display:none; }
+
+/* Controls panel */
+#controls {
+  padding:12px;
+  width:260px;
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.15);
+  backdrop-filter:blur(10px);
+  border-radius:15px;
+  color:white;
+  position:absolute;
+  left:10px;
+  bottom:10px;
+  z-index:10;
+}
+
+/* Adjust controls for layout */
+#controls label {
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  font-size:15px;
+}
+
+/* Modern sliders */
+input[type="range"] {
+  width:140px;
+  height:6px;
+  background:#333;
+  border-radius:4px;
+  outline:none;
+  -webkit-appearance:none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance:none;
+  width:18px;
+  height:18px;
+  background:#00ff84;
+  border-radius:50%;
+  box-shadow:0 0 10px #00ff84;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+  width:18px;
+  height:18px;
+  appearance:none;
+  border:2px solid #00e0ff;
+  border-radius:4px;
+  cursor:pointer;
+}
+
+input[type="checkbox"]:checked {
+  background:#00e0ff;
+  box-shadow:0 0 10px #00e0ff;
+}
+
+/* Color picker */
+input[type="color"] {
+  width:55px;
+  height:30px;
+  border-radius:8px;
+  border:none;
+  padding:2px;
+  cursor:pointer;
+}
+
+/* ---------------- MOBILE ADAPTATION ---------------- */
+@media (max-width: 600px) {
+
+  #appTitle {
+    font-size:18px;
+    padding:4px 10px;
   }
 
-  #graph {
-    width:100vw; 
-    height:100vh;
-  }
-
-  /* Upload bar */
   #uploader {
-    padding:10px;
-    background:rgba(0,0,0,0.6);
-    backdrop-filter: blur(8px);
-    color:white; 
-    position:absolute; 
-    top:10px;
-    left:10px;
-    z-index:10;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.4);
+    width:90%;
+    justify-content:center;
+    top:50px;
+    gap:8px;
   }
 
-  /* Control panel card */
   #controls {
-    position:absolute;
-    top:90px;
-    left:10px;
-    z-index:10;
-
-    padding:15px;
-    width:260px;
-
-    background:rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.15);
-    backdrop-filter: blur(10px);
-
-    border-radius:15px;
-    color:white;
-
-    box-shadow:0 4px 20px rgba(0,0,0,0.4);
+    width:90%;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:10px;
+    padding:10px;
   }
 
   #controls label {
-    display:flex;
-    justify-content: space-between;
-    margin:8px 0;
-    font-size:15px;
+    font-size:14px;
   }
 
-  /* Modern sliders */
   input[type="range"] {
-    -webkit-appearance: none;
-    width:150px;
-    height:6px;
-    border-radius:4px;
-    background:#333;
-    outline:none;
+    width:120px;
   }
-
-  input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance:none;
-    width:18px;
-    height:18px;
-    background:#00ff84;
-    border-radius:50%;
-    cursor:pointer;
-    box-shadow:0 0 10px #00ff84;
-    transition:0.2s;
-  }
-
-  input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.15);
-  }
-
-  /* Modern checkbox */
-  input[type="checkbox"] {
-    width:18px;
-    height:18px;
-    appearance:none;
-    border-radius:5px;
-    border:2px solid #00ffea;
-    cursor:pointer;
-    position:relative;
-  }
-
-  input[type="checkbox"]:checked {
-    background:#00ffea;
-    box-shadow:0 0 10px #00ffea;
-  }
-
-  /* Color input */
-  input[type="color"] {
-    width:50px;
-    height:30px;
-    border-radius:8px;
-    border:none;
-    padding:2px;
-    cursor:pointer;
-    background:none;
-  }
-  /* Modern upload bar */
-#uploader {
-  padding:12px 20px;
-  background:rgba(255,255,255,0.08);
-  border:1px solid rgba(255,255,255,0.15);
-  backdrop-filter: blur(10px);
-  color:white;
-  position:absolute;
-  top:10px;
-  left:10px;
-  z-index:10;
-  border-radius:12px;
-  display:flex;
-  align-items:center;
-  gap:15px;
-  box-shadow:0 4px 20px rgba(0,0,0,0.4);
 }
 
-/* Hidden default input */
-#uploadInput {
-  display:none;
-}
-
-/* Beautiful select button */
-.upload-btn {
-  padding:8px 14px;
-  background:#00e0ff33;
-  border:1px solid #00e0ff55;
-  color:#aeefff;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:14px;
-  transition:0.2s;
-  box-shadow:0 0 10px #00e0ff44;
-}
-
-.upload-btn:hover {
-  background:#00e0ff66;
-  color:white;
-  box-shadow:0 0 12px #00e0ff;
-}
-
-/* Upload button */
-.btn {
-  padding:8px 14px;
-  background:#00ff8833;
-  border:1px solid #00ff8877;
-  color:#b6ffdd;
-  border-radius:10px;
-  cursor:pointer;
-  font-size:14px;
-  transition:0.2s;
-  box-shadow:0 0 10px #00ff8844;
-}
-
-.btn:hover {
-  background:#00ff88bb;
-  color:white;
-  box-shadow:0 0 12px #00ff88;
-}
-
-/* Status text */
-#status {
-  font-size:13px;
-  opacity:0.9;
-}
-
-/* Modern Neon Title */
-#appTitle {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-
-  font-size: 26px;
-  font-weight: 600;
-  color: #e0f7ff;
-
-  padding: 8px 20px;
-
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-
-  border-radius: 14px;
-  box-shadow: 0 0 15px #00e0ff55;
-  text-shadow: 0 0 10px #00e0ff;
-
-  z-index: 20;
-  letter-spacing: 1px;
-}
 
 
 
 </style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 <body>
 
