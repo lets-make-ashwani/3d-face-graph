@@ -165,28 +165,5 @@ function updateNodeDistance() {
 }
 
 
-// // ---------------- AUTO ROTATE ----------------
-// function toggleAutoRotate() {
-//   autoRotate = document.getElementById("autoRotate").checked;
-// }
-
-
-// // ---------------- SEARCH PERSON ----------------
-// function searchPerson() {
-//   const query = document.getElementById("searchBox").value.toLowerCase();
-//   if (!query) return;
-
-//   const node = Graph.graphData().nodes.find(n =>
-//     n.img.toLowerCase().includes(query)
-//   );
-
-//   if (node) {
-//     Graph.cameraPosition(
-//       { x: node.x + 60, y: node.y + 60, z: node.z + 60 },
-//       node,
-//       1500
-//     );
-//   }
-// }
 
 loadGraph();
