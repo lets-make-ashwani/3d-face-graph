@@ -23,26 +23,74 @@ function rotateScene() {
 rotateScene();
 
 
+// ---------------- GLOW EFFECT ----------------
+function addGlowEffect(sprite) {
+  sprite.material.onBeforeCompile = shader => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      `#include <premultiplied_alpha_fragment>`,
+      `
+        #include <premultiplied_alpha_fragment>
+
+        float glow = smoothstep(0.45, 0.2, length(gl_PointCoord * 2.0 - 1.0));
+        gl_FragColor.rgb += glow * 0.5;
+      `
+    );
+  };
+}
+
+
+// ---------------- SHOW PREVIEW POPUP ----------------
+function showPreview(src) {
+  const popup = document.getElementById("previewPopup");
+  const img = document.getElementById("previewImage");
+
+  img.src = src;
+  popup.style.display = "block";
+}
+
+
 // ---------------- LOAD GRAPH ----------------
 async function loadGraph() {
   const res = await fetch("/static/similarity.json");
   const data = await res.json();
 
-  clusters = generateClusters(data.similarities);
+  if (!data.people || data.people.length === 0) {
+    console.warn("⚠ No faces detected. Nothing to visualize.");
+    return;
+  }
 
+  clusters = generateClusters(data.similarities);
   const links = createLinks(data.people, data.similarities);
 
   if (!Graph) {
     Graph = ForceGraph3D()(document.getElementById("graph"))
       .nodeThreeObject(node => {
-        const tx = new THREE.TextureLoader().load(node.img);
-        const mat = new THREE.SpriteMaterial({ map: tx });
-        const sp = new THREE.Sprite(mat);
-        sp.scale.set(30, 30, 1);
-        return sp;
+        const texture = new THREE.TextureLoader().load(node.img);
+        const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+        const sprite = new THREE.Sprite(material);
+
+        // Maintain real image aspect ratio
+        const img = new Image();
+        img.src = node.img;
+        img.onload = () => {
+          const w = img.width;
+          const h = img.height;
+          const maxSize = 30;
+
+          if (w > h) sprite.scale.set(maxSize, maxSize * (h / w), 1);
+          else sprite.scale.set(maxSize * (w / h), maxSize, 1);
+        };
+
+        // Glow effect
+        addGlowEffect(sprite);
+
+        return sprite;
       })
       .nodeColor(node => clusters[node.id].color)
-      .onNodeClick(node => highlightSimilar(node))
+      .onNodeClick(node => {
+        showPreview(node.img);
+        highlightSimilar(node);
+      })
       .linkVisibility(() => true)
       .linkWidth(() => currentLinkWidth)
       .linkColor(() => currentLinkColor);
@@ -50,6 +98,7 @@ async function loadGraph() {
 
   Graph.graphData({ nodes: data.people, links });
 }
+
 
 
 // ---------------- AUTO CLUSTERING ----------------
@@ -79,18 +128,18 @@ function generateClusters(sim) {
 }
 
 
-// ---------------- HIGHLIGHT SIMILAR FACES ----------------
+
+// ---------------- HIGHLIGHT SIMILAR ----------------
 function highlightSimilar(node) {
   Graph.linkWidth(l =>
     l.source.id === node.id || l.target.id === node.id ? 5 : currentLinkWidth
   );
 
   Graph.nodeColor(n =>
-    n.id === node.id
-      ? "white"
-      : clusters[n.id].color
+    n.id === node.id ? "white" : clusters[n.id].color
   );
 }
+
 
 
 // ---------------- CREATE LINKS ----------------
@@ -99,15 +148,13 @@ function createLinks(people, sim) {
   for (let i = 0; i < sim.length; i++) {
     for (let j = i + 1; j < sim.length; j++) {
       if (sim[i][j] > 0.2) {
-        links.push({
-          source: people[i].id,
-          target: people[j].id
-        });
+        links.push({ source: people[i].id, target: people[j].id });
       }
     }
   }
   return links;
 }
+
 
 
 // ---------------- UPLOAD IMAGES ----------------
@@ -128,7 +175,7 @@ async function uploadImages() {
   const data = await res.json();
 
   if (data.success) {
-    status.innerText = "Uploaded: " ;
+    status.innerText = "Uploaded!";
     setTimeout(loadGraph, 500);
   } else {
     status.innerText = "Error uploading!";
@@ -136,24 +183,26 @@ async function uploadImages() {
 }
 
 
+
 // ---------------- LINK VISIBILITY ----------------
 function updateLinkVisibility() {
   const visible = document.getElementById("toggleLinks").checked;
 
-  Graph.linkVisibility(() => visible ? true : false);
+  Graph.linkVisibility(() => visible);
 
-  // When strings are off, width doesn't matter
-  if (!visible) Graph.linkWidth(() => 0);
-  else Graph.linkWidth(() => currentLinkWidth);
+  Graph.linkWidth(() => visible ? currentLinkWidth : 0);
 }
+
 
 
 // ---------------- LINK WIDTH ----------------
 function updateLinkWidth() {
   currentLinkWidth = parseFloat(document.getElementById("linkWidth").value);
   const visible = document.getElementById("toggleLinks").checked;
-  Graph.linkWidth(visible ? currentLinkWidth : 0);
+
+  Graph.linkWidth(() => visible ? currentLinkWidth : 0);
 }
+
 
 
 // ---------------- LINK COLOR ----------------
@@ -161,6 +210,7 @@ function updateLinkColor() {
   currentLinkColor = document.getElementById("linkColorPicker").value;
   Graph.linkColor(() => currentLinkColor);
 }
+
 
 
 // ---------------- NODE DISTANCE ----------------
@@ -172,4 +222,5 @@ function updateNodeDistance() {
 
 
 
+// ---------------- START ----------------
 loadGraph();
